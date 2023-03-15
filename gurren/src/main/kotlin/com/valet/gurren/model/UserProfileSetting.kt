@@ -1,8 +1,12 @@
-package com.valetbyte.gurren.model
+package com.valet.gurren.model
 
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
+
+@Entity
 data class UserProfileSetting(
-    private val username: String,
-    private val isCloseProfile: Boolean,
-    private val messageFromStrangers: Boolean,
-    private val isHideMode: Boolean
+    @Id val username: String = "",
+    val isCloseProfile: Boolean = false,
+    val messageFromStrangers: Boolean = true,
+    val isHideMode: Boolean = false
 )

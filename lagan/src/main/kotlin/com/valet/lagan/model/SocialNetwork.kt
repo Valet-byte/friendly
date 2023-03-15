@@ -1,4 +1,4 @@
-package com.valet.gurren.model
+package com.valet.lagan.model
 
 data class SocialNetwork(
     private val username: String,

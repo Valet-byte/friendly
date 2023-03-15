@@ -10,3 +10,5 @@ pgdata
 */.gradle
 lagan/build/
 */gradle/wrapper/gradle-wrapper.jar
+
+friendly-secret-key-firebase.json

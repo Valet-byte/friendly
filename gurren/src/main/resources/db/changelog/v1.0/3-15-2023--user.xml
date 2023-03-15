@@ -7,50 +7,29 @@
 
 
         <createTable tableName="user">
-            <column name="id"
-                    type="bigint"
-                    autoIncrement="true">
+            <column name="username" type="varchar(100)">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
 
-            <column name="name" type="varchar(50)">
-                <constraints nullable="false" unique="true"/>
-            </column>
-
-            <column name="password" type="text">
+            <column name="date-of-birth" type="timestamp with time zone">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="email" type="text">
-                <constraints nullable="false" unique="true"/>
+            <column name="is-premium" type="boolean">
+                <constraints nullable="true"/>
             </column>
 
-            <column name="role_id" type="bigint"/>
-        </createTable>
-
-        <createTable tableName="roles">
-            <column name="id"
-                    type="bigint"
-                    autoIncrement="true">
-                <constraints primaryKey="true" nullable="false"/>
+            <column name="is-enable" type="boolean">
+                <constraints nullable="true"/>
             </column>
 
-            <column name="name" type="varchar(10)">
-                <constraints nullable="false" unique="true"/>
+            <column name="city" type="varchar(100)">
+                <constraints nullable="false"/>
             </column>
 
-        </createTable>
-
-        <createTable tableName="emails">
-            <column name="id"
-                    type="bigint"
-                    autoIncrement="true">
-                <constraints primaryKey="true" nullable="false"/>
+            <column name="messaging-token" type="varchar(100)">
+                <constraints unique="true"/>
             </column>
-            <column name="fromUserName" type="text"/>
-            <column name="username" type="text"/>
-            <column name="email" type="text"/>
-            <column name="value" type="text"/>
         </createTable>
 
     </changeSet>

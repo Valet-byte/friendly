@@ -1,4 +1,4 @@
-package com.valet.gurren.model
+package com.valet.lagan.model
 
 data class Point(
     private val id: String,

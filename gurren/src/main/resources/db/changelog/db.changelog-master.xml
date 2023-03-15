@@ -5,7 +5,10 @@
         xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
-
-    <includeAll path="db/changelog/v1.0/"/>
+    
+    <include file="db/changelog/v1.0/3-15-2023--user.xml"/>
+    <include file="db/changelog/v1.0/3-15-2023--description.xml"/>
+    <include file="db/changelog/v1.0/3-15-2023--social-networks.xml"/>
+    <include file="db/changelog/v1.0/3-15-2023--friends.xml"/>
 
 </databaseChangeLog>

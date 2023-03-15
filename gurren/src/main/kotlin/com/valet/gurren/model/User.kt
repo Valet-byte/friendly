@@ -1,20 +1,32 @@
-package com.valetbyte.gurren.model
+package com.valet.gurren.model
 
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
+import java.time.Instant
 import java.util.Date
 
+@Entity
 data class User(
-    private val username: String,
-    private val date: Date,
-    private val isPremium: Boolean,
-    private val isEnable: Boolean,
-    private val city: String,
-    private val serialNumber: String
-)
+    @Id val username: String = "",
+    val dateOfBirth: Date = Date.from(Instant.now()),
+    val isPremium: Boolean = false,
+    val isEnable: Boolean = true,
+    val city: String = "Москва",
+    val messagingToken: String = ""
+){
+    companion object{
+        fun createUser(userData: UserData): User {
+            return User(username = userData.username,
+                        dateOfBirth = userData.date,
+                        city = userData.city,
+                        messagingToken = userData.messagingToken)
+        }
+    }
+}
 
 data class UserData(
-    private val username: String,
-    private val date: Date,
-    private val city: String,
-    private val serialNumber: String,
-    private val messagingToken: String
+    val username: String,
+    val date: Date,
+    val city: String,
+    val messagingToken: String
 )

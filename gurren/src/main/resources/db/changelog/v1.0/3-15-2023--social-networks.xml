@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="3-15-2023--social-networks--001" author="Valet-Byte">
+
+        <createTable tableName="social-networks">
+            <column name="username" type="varchar(100)">
+                <constraints primaryKey="true" nullable="false" references="user(username)" foreignKeyName="user_username"/>
+            </column>
+
+            <column name="vk-link" type="text">
+                <constraints nullable="true" unique="true"/>
+            </column>
+
+            <column name="telegram-link" type="text">
+                <constraints nullable="true" unique="true"/>
+            </column>
+
+            <column name="instagram-link" type="text">
+                <constraints nullable="true" unique="true"/>
+            </column>
+
+            <column name="tiktok-link" type="text">
+                <constraints nullable="true" unique="true"/>
+            </column>
+
+            <column name="youtube-link" type="text">
+                <constraints nullable="true" unique="true"/>
+            </column>
+        </createTable>
+
+    </changeSet>
+
+</databaseChangeLog>
