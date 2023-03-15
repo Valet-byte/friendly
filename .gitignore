@@ -1,0 +1,10 @@
+.idea
+.gradle
+build
+
+lagan/!**/src/main/**/build/
+gurren/!**/src/test/**/build/
+
+*/.gradle
+lagan/build/
+*/gradle/wrapper/gradle-wrapper.jar
