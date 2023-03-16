@@ -6,7 +6,9 @@ import com.google.firebase.FirebaseOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.messaging.FirebaseMessaging
+import com.valet.gurren.service.userService.sesionId.SessionIdService
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.ApplicationRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
@@ -33,6 +35,11 @@ class GurrenApplication {
 
     @Bean
     fun firebaseDatabase(app: FirebaseApp, @Value("\${firebase.database.url}") url: String) : FirebaseDatabase = FirebaseDatabase.getInstance(app, url)
+
+    @Bean
+    fun runner(sessionIdService: SessionIdService): ApplicationRunner = ApplicationRunner {
+        sessionIdService.updateSessionId("432432","Roma", "12234567")
+    }
 }
 
 fun main(args: Array<String>) {

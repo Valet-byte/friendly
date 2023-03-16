@@ -2,10 +2,13 @@ package com.valet.gurren.service.userService
 
 import com.valet.gurren.model.Description
 import com.valet.gurren.model.User
+import com.valet.gurren.model.UserData
 import com.valet.gurren.model.UserProfileSetting
 import org.springframework.http.ResponseEntity
 
 interface UserService {
+
+    fun login(userId: String, sessionId: String, userData: UserData): User
     fun updateSessionId(sessionId: String, userId: String) : ResponseEntity<String>
     fun getUserFriends(userId: String) : ResponseEntity<List<User>>
     fun addFriend(userId: String, username: String) : ResponseEntity<String>

@@ -11,14 +11,12 @@ data class User(
     var dateOfBirth: Date = Date.from(Instant.now()),
     var isPremium: Boolean = false,
     var isEnable: Boolean = true,
-    var city: String = "Москва",
-    var messagingToken: String = ""
+    var city: String = "Москва"
 ){
     companion object{
         fun createUser(userData: UserData): User {
             return User(dateOfBirth = userData.date,
-                        city = userData.city,
-                        messagingToken = userData.messagingToken)
+                        city = userData.city)
         }
     }
 }

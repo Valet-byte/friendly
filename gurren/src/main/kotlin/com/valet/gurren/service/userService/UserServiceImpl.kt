@@ -2,12 +2,19 @@ package com.valet.gurren.service.userService
 
 import com.valet.gurren.model.Description
 import com.valet.gurren.model.User
+import com.valet.gurren.model.UserData
 import com.valet.gurren.model.UserProfileSetting
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 
 @Service
-class UserServiceImpl : UserService {
+class UserServiceImpl(
+
+) : UserService {
+    override fun login(userId: String, sessionId: String, userData: UserData): User {
+        TODO("Not yet implemented")
+    }
+
     override fun updateSessionId(sessionId: String, userId: String): ResponseEntity<String> {
         TODO("Not yet implemented")
     }

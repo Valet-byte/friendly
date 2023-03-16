@@ -1,4 +1,4 @@
-package com.valet.gurren.repo.cache
+package com.valet.gurren.repo.cache.userCache
 
 import com.valet.gurren.model.User
 

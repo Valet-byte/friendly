@@ -1,4 +1,7 @@
 package com.valet.gurren.repo.db.messagingTokenRepo
 
-interface MessagingTokenRepo {
+import com.valet.gurren.model.MessagingToken
+import org.springframework.data.repository.CrudRepository
+
+interface MessagingTokenRepo : CrudRepository<MessagingToken, String> {
 }

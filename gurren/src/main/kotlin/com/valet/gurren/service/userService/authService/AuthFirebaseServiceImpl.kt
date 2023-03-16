@@ -4,7 +4,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.valet.gurren.exception.UserAlreadyExists
 import com.valet.gurren.model.User
 import com.valet.gurren.model.UserData
-import com.valet.gurren.repo.cache.UserCache
+import com.valet.gurren.repo.cache.userCache.UserCache
 import com.valet.gurren.repo.db.userRepo.UserRepo
 import org.springframework.stereotype.Service
 import java.lang.IllegalArgumentException

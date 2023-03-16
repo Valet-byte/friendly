@@ -3,11 +3,12 @@ package com.valet.gurren.model
 import java.util.*
 
 data class Message(
-    private val fromUser: String,
-    private val body: String, /* if type == PICTURE */
-    private val type: MessageType,
-    private val date: Date,
-    private val chatId: UUID
+    var id: String = "",
+    val fromUser: String,
+    val body: String, /* if type == PICTURE */
+    val type: MessageType,
+    val date: Date,
+    val chatId: String
 )
 
 enum class MessageType{

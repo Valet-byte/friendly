@@ -27,11 +27,11 @@ interface UserRepo : CrudRepository<User, String> {
     fun addFriend(username1: String, username2: String)
 
     @Query(nativeQuery = true, value = "SELECT username2 from friends WHERE username1 = :username AND not isempty(SELECT username1 from friends WHERE username2 = :username)")
-    fun getFriends(@Param("username") username: String, pageable: Pageable): List<String>
+    fun getFriends(@Param("username") username: String): List<String>
 
     @Query(nativeQuery = true, value = "SELECT username2 from friends WHERE username1 = :username AND isempty(SELECT username1 from friends WHERE username2 = :username)")
-    fun getSubscribers(@Param("username") username : String, pageable: Pageable): List<String>
+    fun getSubscribers(@Param("username") username : String): List<String>
 
     @Query(nativeQuery = true, value = "SELECT username1 from friends WHERE username2 = :username AND isempty(SELECT username2 from friends WHERE username1 = :username)")
-    fun getFollowers(@Param("username") username : String, pageable: Pageable): List<String>
+    fun getFollowers(@Param("username") username : String): List<String>
 }

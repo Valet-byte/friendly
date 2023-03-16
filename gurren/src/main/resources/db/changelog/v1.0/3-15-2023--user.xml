@@ -34,4 +34,8 @@
 
     </changeSet>
 
+    <changeSet id="3-16-2023--user--001" author="Valet-byte">
+        <dropColumn tableName="user" columnName="messaging-token"/>
+    </changeSet>
+
 </databaseChangeLog>
