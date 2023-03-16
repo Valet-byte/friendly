@@ -20,19 +20,19 @@ class UserController {
 
     @GetMapping("/{username}")
     fun getUser(@PathVariable("username") username: String) : User{
-
+        return User()
     }
 
     @GetMapping("/description/{username}")
     fun getUserDescription(@PathVariable("username") username: String) : Description{
-
+        return Description()
     }
 
     @PostMapping("/")
     fun createUser(@RequestParam("user_id") userId: String,
                    @RequestParam("session_id") sessionId : String,
                    @RequestBody userData: UserData) : User{
-
+        return User()
     }
 
     @GetMapping("/friends")
@@ -40,34 +40,34 @@ class UserController {
                    @RequestParam page: Int,
                    @RequestParam size: Int
     ) : List<User> {
-
+        return listOf(User())
     }
 
     @PostMapping("/friend/{username}")
     fun addFriend(@RequestParam("user_id") userId: String,
                   @PathVariable("username") username: String): ResponseEntity<String>{
-
+        return ResponseEntity.ok("ok")
     }
 
     @DeleteMapping("/friend/{username}")
     fun deleteUser(@RequestParam("user_id") userId: String,
                   @PathVariable("username") username: String): ResponseEntity<String>{
-
+        return ResponseEntity.ok("ok")
     }
 
     @DeleteMapping("/")
     fun deleteUser(@RequestParam("user_id") userId: String): ResponseEntity<String>{
-
+        return ResponseEntity.ok("ok")
     }
 
     @PostMapping("/settings")
     fun updateSettings(@RequestParam("user_id") userId: String,
                        @RequestBody userProfileSetting: UserProfileSetting) : ResponseEntity<String>{
-
+        return ResponseEntity.ok("ok")
     }
 
     @GetMapping("/settings")
     fun getUserSettings(@RequestParam("user_id") userId: String) : UserProfileSetting{
-
+        return UserProfileSetting()
     }
 }

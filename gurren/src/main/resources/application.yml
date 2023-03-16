@@ -45,3 +45,8 @@ spring:
 cache:
   duration-time: 60
 
+firebase:
+  secret-key-path: \path\to\friendly-secret-key-firebase.json
+  database:
+    url: path-to-firebase-database
+

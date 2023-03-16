@@ -17,7 +17,8 @@ repositories {
 }
 
 dependencies {
-    implementation("org.liquibase:liquibase-core:4.20.0")
+    implementation("com.google.firebase:firebase-admin:9.1.1")
+    implementation("org.liquibase:liquibase-core")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-web")

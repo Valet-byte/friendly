@@ -7,17 +7,16 @@ import java.util.Date
 
 @Entity
 data class User(
-    @Id val username: String = "",
-    val dateOfBirth: Date = Date.from(Instant.now()),
-    val isPremium: Boolean = false,
-    val isEnable: Boolean = true,
-    val city: String = "Москва",
-    val messagingToken: String = ""
+    @Id var username: String = "",
+    var dateOfBirth: Date = Date.from(Instant.now()),
+    var isPremium: Boolean = false,
+    var isEnable: Boolean = true,
+    var city: String = "Москва",
+    var messagingToken: String = ""
 ){
     companion object{
         fun createUser(userData: UserData): User {
-            return User(username = userData.username,
-                        dateOfBirth = userData.date,
+            return User(dateOfBirth = userData.date,
                         city = userData.city,
                         messagingToken = userData.messagingToken)
         }
@@ -25,7 +24,6 @@ data class User(
 }
 
 data class UserData(
-    val username: String,
     val date: Date,
     val city: String,
     val messagingToken: String
