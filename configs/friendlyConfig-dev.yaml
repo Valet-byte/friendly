@@ -1,0 +1,18 @@
+server:
+  host: 127.0.0.1
+  port: 8080
+  timeout:
+    server: 30s
+    read: 15s
+    write: 10s
+    idle: 5s
+  cache:
+    host: localhost:6379
+    password: MEGA_SECRET_PASSWORD
+    duration: 48h
+  jwt:
+    secretKey: kjd*(*(78998Y#$#Hkljf;Sjk#KhudhKJKESjkлдажыфво
+    validTime: 5h
+    recreateTime: 2h
+log:
+  level: debug

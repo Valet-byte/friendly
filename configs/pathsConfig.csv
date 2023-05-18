@@ -1,0 +1,12 @@
+path, method, isOpen, authMethod
+/api/V1/swagger/*any,GET,true,NULL
+/api/V1/users/getFbToken,GET,true,NULL
+/api/V1/users/,PUT,false,friendly_token
+/api/V1/users/,POST,true,NULL
+/api/V1/users/,DELETE,false,friendly_token
+/api/V1/users/exists,GET,false,firebase_token
+/api/V1/users/:id,GET,false,friendly_token
+/api/V1/users,GET,false,friendly_token
+/api/V1/users/description,GET,false,friendly_token
+/api/V1/users/:id/description,GET,false,friendly_token
+/api/V1/users/description,POST,false,friendly_token

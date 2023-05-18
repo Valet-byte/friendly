@@ -1,76 +1,10 @@
 version: "3.9"
 
 services:
-  postgres:
-    image: postgres
-    environment:
-      POSTGRES_DB: "friendly"
-      POSTGRES_USER: "friendly"
-      POSTGRES_PASSWORD: "MEGA_UNREAL_SECRET_PASSWORD"
-      PGDATA: "/var/lib/postgresql/data/pgdata"
-    volumes:
-      - ../2. Init Database:/docker-entrypoint-initdb.d
-      - .:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U habrpguser -d habrdb" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    restart: always
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 4G
-
-  cache:
+  redis:
     image: redis
-    restart: always
     ports:
-      - '6379:6379'
-    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
-
-  zoo1:
-    image: zookeeper
-    restart: always
-    hostname: zoo1
+      - "6379:6379"
+    command: redis-server --requirepass MEGA_SECRET_PASSWORD
     environment:
-      ZOO_MY_ID: 1
-      ZOO_SERVERS: server.1=zoo1:2888:3888;2181 server.2=zoo2:2888:3888;2181 server.3=zoo3:2888:3888;2181
-
-  zoo2:
-    image: zookeeper
-    restart: always
-    hostname: zoo2
-    environment:
-      ZOO_MY_ID: 2
-      ZOO_SERVERS: server.1=zoo1:2888:3888;2181 server.2=zoo2:2888:3888;2181 server.3=zoo3:2888:3888;2181
-
-  zoo3:
-    image: zookeeper
-    restart: always
-    hostname: zoo3
-    environment:
-      ZOO_MY_ID: 3
-      ZOO_SERVERS: server.1=zoo1:2888:3888;2181 server.2=zoo2:2888:3888;2181 server.3=zoo3:2888:3888;2181
-
-  kafka:
-    restart: always
-    image: 'bitnami/kafka:latest'
-    ports:
-      - '8083:8083'
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_LISTENERS: PLAINTEXT://:8083
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:8083
-      KAFKA_ZOOKEEPER_CONNECT: zoo1:2181 , zoo2:2181, zoo3:2181
-      ALLOW_PLAINTEXT_LISTENER: yes
-    depends_on:
-      - zoo1
-      - zoo2
-      - zoo3
-
-
+      REDIS_PASSWORD: MEGA_SECRET_PASSWORD

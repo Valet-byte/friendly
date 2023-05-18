@@ -1,14 +1,4 @@
 .idea
-.gradle
 build
 
-lagan/!**/src/main/**/build/
-gurren/!**/src/test/**/build/
-
-pgdata
-
-*/.gradle
-lagan/build/
-*/gradle/wrapper/gradle-wrapper.jar
-
-friendly-secret-key-firebase.json
+./configs/firebaseSecret.json
