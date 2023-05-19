@@ -1,7 +1,7 @@
 package restHandler
 
 import (
-	service "friendly/internal/service/token"
+	"friendly/internal/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

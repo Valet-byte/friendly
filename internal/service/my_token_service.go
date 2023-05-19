@@ -63,7 +63,7 @@ func (s *FriendlyTokenService) GetUserData(userId string, ctx *gin.Context) (*mo
 			return nil, errors.New("not found user data")
 		}
 
-		_, err := s.redisService.PutUser(userData.Uid, *userData)
+		_, err := s.redisService.PutUser(userData.Uid, userData)
 		if err != nil {
 			logrus.Error("Error save user to redis! FriendlyTokenService(62), error :", err)
 		}

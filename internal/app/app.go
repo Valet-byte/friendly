@@ -6,7 +6,7 @@ import (
 	"friendly/internal/apiserver"
 	"friendly/internal/config"
 	restHandler "friendly/internal/handler/rest"
-	service "friendly/internal/service/token"
+	service2 "friendly/internal/service"
 	"github.com/go-redis/redis"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/api/option"
@@ -26,7 +26,7 @@ func Start(configPath, pathToFirebaseSecret, pathsConfig string) {
 	if err != nil {
 		logrus.Fatalf("Fatal error! error : {%s}", err.Error())
 	}
-	fbApp := service.NewFirebaseApp(app)
+	fbApp := service2.NewFirebaseApp(app)
 	client := redis.NewClient(&redis.Options{
 		Addr:     conf.Server.Cache.Host,
 		Password: conf.Server.Cache.Password,
@@ -35,11 +35,11 @@ func Start(configPath, pathToFirebaseSecret, pathsConfig string) {
 	if err != nil {
 		logrus.Fatalf("Fatal error! error : {%s}", err.Error())
 	}
-	redisService := service.NewRedisService(client, conf.Server.Cache.Duration)
-	friendlyTS := service.NewFriendlyTokenService(conf.Server.Jwt.SecretKey, redisService, fbApp, conf.Server.Jwt.ValidTime)
+	redisService := service2.NewRedisService(client, conf.Server.Cache.Duration)
+	friendlyTS := service2.NewFriendlyTokenService(conf.Server.Jwt.SecretKey, redisService, fbApp, conf.Server.Jwt.ValidTime)
 	rl := restHandler.NewRateLimiter(10, redisService)
 	am := restHandler.NewAuthMiddleware(ptConf, conf.Server.Jwt.RecreateTime, friendlyTS, fbApp)
-	vkService := service.NewVkService("https://api.vk.com/method/users.get", "5.131")
+	vkService := service2.NewVkService("https://api.vk.com/method/users.get", "5.131")
 	handler := restHandler.NewRestHandler(fbApp, rl, vkService, am, redisService)
 	handles := handler.InitHandlers()
 	server := apiserver.NewApiServer(conf, handles)

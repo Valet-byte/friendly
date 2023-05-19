@@ -3,7 +3,7 @@ package restHandler
 import (
 	"friendly/internal/config"
 	"friendly/internal/model"
-	service "friendly/internal/service/token"
+	service2 "friendly/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"net/http"
@@ -18,11 +18,11 @@ const (
 type AuthMiddleware struct {
 	pathConfig        *config.RestPathsConfig
 	recreateTokenTime time.Duration
-	frTokenService    *service.FriendlyTokenService
-	fbApp             *service.FirebaseAppService
+	frTokenService    *service2.FriendlyTokenService
+	fbApp             *service2.FirebaseAppService
 }
 
-func NewAuthMiddleware(pathConfig *config.RestPathsConfig, recreateTokenTime time.Duration, frTokenService *service.FriendlyTokenService, fbApp *service.FirebaseAppService) *AuthMiddleware {
+func NewAuthMiddleware(pathConfig *config.RestPathsConfig, recreateTokenTime time.Duration, frTokenService *service2.FriendlyTokenService, fbApp *service2.FirebaseAppService) *AuthMiddleware {
 	return &AuthMiddleware{pathConfig: pathConfig, recreateTokenTime: recreateTokenTime, frTokenService: frTokenService, fbApp: fbApp}
 }
 
