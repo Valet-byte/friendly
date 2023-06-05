@@ -14,12 +14,14 @@ type Event struct {
 	FriendSize    int
 	StartTime     time.Time
 	EndTime       time.Time
-	AccessType    string
+	AccessType    EventAccessType
 }
 
+type EventAccessType string
+
 const (
-	AllUsers          = "all_users"
-	FriendlyOnly      = "friendly_only"
-	ByInvite          = "by_invite"
-	ByInviteOrRequest = "by_invite_or_request"
+	AllUsers          = EventAccessType("all_users")
+	FriendlyOnly      = EventAccessType("friendly_only")
+	ByInvite          = EventAccessType("by_invite")
+	ByInviteOrRequest = EventAccessType("by_invite_or_request")
 )

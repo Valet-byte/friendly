@@ -33,9 +33,9 @@ type FriendlyConfig struct {
 	} `yaml:"log"`
 }
 
-func LoadConfig(configPath string) (*FriendlyConfig, error) {
+func LoadConfig(configPath ConfigPath) (*FriendlyConfig, error) {
 	config := &FriendlyConfig{}
-	file, err := os.Open(configPath)
+	file, err := os.Open(string(configPath))
 	if err != nil {
 		return nil, err
 	}
@@ -51,4 +51,10 @@ func LoadConfig(configPath string) (*FriendlyConfig, error) {
 	err = decoder.Decode(&config)
 
 	return config, err
+}
+
+type ConfigPath string
+
+func GetConfigPath(path string) ConfigPath {
+	return ConfigPath(path)
 }

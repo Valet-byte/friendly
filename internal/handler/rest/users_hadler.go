@@ -136,8 +136,8 @@ func (h *RestHandler) updateUserData(ctx *gin.Context) {
 		return
 	}
 
-	uid, err := h.rd.PutUser(user.Uid, *user)
-	
+	uid, err := h.rd.PutUser(user.Uid, user)
+
 	if err != nil {
 		logrus.Error("Failed update cash for user data! err: ", err, " uid: ", uid, "UserData: ", user)
 		err = h.rd.DeleteUser(user.Uid)

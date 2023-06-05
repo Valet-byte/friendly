@@ -32,13 +32,12 @@ func NewRestHandler(fb *service2.FirebaseAppService, rl *ReteLimiter, vk *servic
 
 func (h *RestHandler) InitHandlers() *gin.Engine {
 
-	router := gin.New()
-	docs.Init()
+	docs.SwaggerInfo.BasePath = "/api/V1"
 
+	router := gin.New()
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	apiV1 := router.Group("/api/V1", h.rl.RateLimiterMiddleware, h.am.Middleware)
 	{
-		apiV1.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
 		users := apiV1.Group("/users") // Работа с пользователями
 		{
 			users.GET("/", h.getUserData)                       // получаем информацию о себе

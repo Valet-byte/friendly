@@ -13,6 +13,7 @@ import (
 )
 
 func Start(configPath, pathToFirebaseSecret, pathsConfig string) {
+	wire.
 	conf, err := config.LoadConfig(configPath)
 	if err != nil {
 		logrus.Fatalf("Fatal error! error : {%s}", err.Error())
@@ -22,6 +23,7 @@ func Start(configPath, pathToFirebaseSecret, pathsConfig string) {
 		logrus.Fatalf("Fatal error! error : {%s}", err.Error())
 	}
 	logrus.SetLevel(level)
+
 	app, err := getFirebaseApp(pathToFirebaseSecret)
 	if err != nil {
 		logrus.Fatalf("Fatal error! error : {%s}", err.Error())
