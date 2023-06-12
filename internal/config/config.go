@@ -33,7 +33,7 @@ type FriendlyConfig struct {
 	} `yaml:"log"`
 }
 
-func LoadConfig(configPath ConfigPath) (*FriendlyConfig, error) {
+func LoadConfig(configPath string) (*FriendlyConfig, error) {
 	config := &FriendlyConfig{}
 	file, err := os.Open(string(configPath))
 	if err != nil {

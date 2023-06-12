@@ -1,4 +1,4 @@
-package service
+package cache
 
 import (
 	"encoding/json"
@@ -24,21 +24,26 @@ func NewRedisService(client *redis.Client, validTime time.Duration) *RedisServic
 	return &RedisService{client: client, validTime: validTime}
 }
 
-func (r *RedisService) PutUser(uid string, user *model.User) (string, error) {
+func (r *RedisService) PutUser(user model.User) error {
+
+	if user.Uid == "" {
+		return errors.New("uid doesn't be empty")
+	}
+
 	data, err := json.Marshal(user)
 	if err != nil {
 		logrus.Error("Failed convert value :", err)
-		return "", err
+		return err
 	}
 
-	_, err = r.client.Set(userPrefix+uid, data, r.validTime).Result()
+	_, err = r.client.Set(userPrefix+user.Uid, data, r.validTime).Result()
 
 	if err != nil {
 		logrus.Error("RedisService set error :", err)
-		return "", err
+		return err
 	}
 
-	return uid, nil
+	return nil
 }
 func (r *RedisService) GetUser(uid string) (*model.User, error) {
 	userData, err := r.client.Get(userPrefix + uid).Bytes()

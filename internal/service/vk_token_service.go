@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	"friendly/internal/utils"
 	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
@@ -66,7 +67,7 @@ func (s *VkService) GetClaims(vkAccessToken string) (map[string]interface{}, err
 
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		logrus.Error("VkService.GetClaims error :", err)
+		utils.LogError("", err)
 		return nil, err
 	}
 

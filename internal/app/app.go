@@ -4,6 +4,7 @@ import (
 	"context"
 	firebase "firebase.google.com/go/v4"
 	"friendly/internal/apiserver"
+	"friendly/internal/cache"
 	"friendly/internal/config"
 	restHandler "friendly/internal/handler/rest"
 	service2 "friendly/internal/service"
@@ -13,7 +14,7 @@ import (
 )
 
 func Start(configPath, pathToFirebaseSecret, pathsConfig string) {
-	wire.
+
 	conf, err := config.LoadConfig(configPath)
 	if err != nil {
 		logrus.Fatalf("Fatal error! error : {%s}", err.Error())
@@ -37,7 +38,7 @@ func Start(configPath, pathToFirebaseSecret, pathsConfig string) {
 	if err != nil {
 		logrus.Fatalf("Fatal error! error : {%s}", err.Error())
 	}
-	redisService := service2.NewRedisService(client, conf.Server.Cache.Duration)
+	redisService := cache.NewRedisService(client, conf.Server.Cache.Duration)
 	friendlyTS := service2.NewFriendlyTokenService(conf.Server.Jwt.SecretKey, redisService, fbApp, conf.Server.Jwt.ValidTime)
 	rl := restHandler.NewRateLimiter(10, redisService)
 	am := restHandler.NewAuthMiddleware(ptConf, conf.Server.Jwt.RecreateTime, friendlyTS, fbApp)

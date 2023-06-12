@@ -3,6 +3,7 @@ package restHandler
 import (
 	"errors"
 	"friendly/docs"
+	"friendly/internal/cache"
 	service2 "friendly/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -23,10 +24,10 @@ type RestHandler struct {
 	vk *service2.VkService
 	rl *ReteLimiter
 	am *AuthMiddleware
-	rd *service2.RedisService
+	rd *cache.RedisService
 }
 
-func NewRestHandler(fb *service2.FirebaseAppService, rl *ReteLimiter, vk *service2.VkService, am *AuthMiddleware, rd *service2.RedisService) *RestHandler {
+func NewRestHandler(fb *service2.FirebaseAppService, rl *ReteLimiter, vk *service2.VkService, am *AuthMiddleware, rd *cache.RedisService) *RestHandler {
 	return &RestHandler{fb: fb, rl: rl, vk: vk, am: am, rd: rd}
 }
 

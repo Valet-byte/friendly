@@ -5,6 +5,7 @@ type User struct {
 	Name      string         `json:"name"`
 	Email     string         `json:"email"`
 	IsPremium bool           `json:"isBro"`
+	Deleted   bool           `json:"deleted"`
 	IsEnable  bool           `json:"is_enable"`
 	City      string         `json:"city"`
 	Networks  SocialNetworks `json:"networks"`
@@ -38,10 +39,4 @@ type RegistrationUserData struct {
 	UserName string `json:"user_name"`
 	Password string `json:"password"`
 	Email    string `json:"email"`
-}
-
-type UserI interface {
-	GetType() string
-	GetId() int64
-	GetName() string
 }

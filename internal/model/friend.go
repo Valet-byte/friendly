@@ -1,12 +1,8 @@
 package model
 
 type Friends struct {
-	UserUid1 string
-	UserUid2 string
-	Type     string
+	Uid       string `json:"uid"`
+	UserId    string `json:"user_id"`
+	FriendId  string `json:"friend_id"`
+	Confirmed bool   `json:"confirmed"`
 }
-
-const (
-	Default = "default"
-	Request = "request"
-)

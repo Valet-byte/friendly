@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"friendly/internal/cache"
 	"friendly/internal/model"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
@@ -11,12 +12,12 @@ import (
 
 type FriendlyTokenService struct {
 	secretKey    string
-	redisService *RedisService
+	redisService *cache.RedisService
 	fbApp        *FirebaseAppService
 	activeTime   time.Duration
 }
 
-func NewFriendlyTokenService(secretKey string, redisService *RedisService, fbApp *FirebaseAppService, activeTime time.Duration) *FriendlyTokenService {
+func NewFriendlyTokenService(secretKey string, redisService *cache.RedisService, fbApp *FirebaseAppService, activeTime time.Duration) *FriendlyTokenService {
 	return &FriendlyTokenService{secretKey: secretKey, redisService: redisService, fbApp: fbApp, activeTime: activeTime}
 }
 

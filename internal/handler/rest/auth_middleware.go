@@ -118,6 +118,6 @@ func (s *AuthMiddleware) Middleware(ctx *gin.Context) {
 			return
 		}
 	}
-
+	ctx.Next()
 	return
 }
