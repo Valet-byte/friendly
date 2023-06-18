@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"friendly/internal/model"
+	"friendly/internal/utils"
 	"github.com/go-redis/redis"
 	"github.com/sirupsen/logrus"
 	"time"
@@ -45,27 +46,30 @@ func (r *RedisService) PutUser(user model.User) error {
 
 	return nil
 }
-func (r *RedisService) GetUser(uid string) (*model.User, error) {
+func (r *RedisService) GetUser(uid string) (model.User, error) {
 	userData, err := r.client.Get(userPrefix + uid).Bytes()
 
 	var retrievedUser model.User
 
 	if err == redis.Nil {
-		return nil, errors.New("not exist user")
+		utils.Log("not exist user", err)
+		return model.User{}, errors.New("not exist user")
 	}
 	if err != nil {
-		logrus.Error("RedisService set error :", err)
-		return &retrievedUser, err
+		utils.Log("RedisService error ", err)
+		logrus.Error("RedisService error :", err)
+		return model.User{}, err
 	}
 	logrus.Info(string(userData[:]))
 	err = json.Unmarshal(userData, &retrievedUser)
 
 	if err != nil {
-		logrus.Error("RedisService set error :", err)
-		return &retrievedUser, err
+		utils.Log("failed map user data", err)
+		logrus.Error("Failed map user data :", err)
+		return model.User{}, err
 	}
 
-	return &retrievedUser, nil
+	return retrievedUser, nil
 }
 func (r *RedisService) IncrementRequestCount(ip string) error {
 	err := r.client.Incr(ipPrefix + ip).Err()
@@ -87,14 +91,14 @@ func (r *RedisService) GetRequestCount(ip string) (int, error) {
 func (r *RedisService) DeleteUser(uid string) error {
 	return r.client.Del(userPrefix + uid).Err()
 }
-func (r *RedisService) PutUserDescription(uid, description string) (string, error) {
+func (r *RedisService) PutUserDescription(uid, description string) error {
 	_, err := r.client.Set(descriptionPrefix+uid, description, r.validTime*5).Result()
 	if err != nil {
 		logrus.Error("RedisService set error :", err)
-		return "", err
+		return err
 	}
 
-	return uid, nil
+	return nil
 }
 func (r *RedisService) GetUserDescription(uid string) (string, error) {
 	desc, err := r.client.Get(descriptionPrefix + uid).Bytes()

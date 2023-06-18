@@ -2,9 +2,13 @@ package restHandler
 
 import (
 	"errors"
+	"fmt"
 	"friendly/docs"
-	"friendly/internal/cache"
-	service2 "friendly/internal/service"
+	"friendly/internal/model"
+	"friendly/internal/service/friends_service"
+	"friendly/internal/service/user_description_service"
+	"friendly/internal/service/user_service"
+	"friendly/internal/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	swaggerFiles "github.com/swaggo/files"
@@ -17,18 +21,15 @@ const (
 	AuthorizationHeader = "Authorization"
 	TokenHeader         = "Token"
 	UserData            = "UserData"
+	UserUid             = "UserUid"
 )
 
 type RestHandler struct {
-	fb *service2.FirebaseAppService
-	vk *service2.VkService
-	rl *ReteLimiter
-	am *AuthMiddleware
-	rd *cache.RedisService
-}
-
-func NewRestHandler(fb *service2.FirebaseAppService, rl *ReteLimiter, vk *service2.VkService, am *AuthMiddleware, rd *cache.RedisService) *RestHandler {
-	return &RestHandler{fb: fb, rl: rl, vk: vk, am: am, rd: rd}
+	userService            user_service.UserService
+	userDescriptionService user_description_service.UserDescriptionService
+	userFriendsService     friends_service.FriendsService
+	rateLimiter            *ReteLimiter
+	authMiddleware         *AuthMiddleware
 }
 
 func (h *RestHandler) InitHandlers() *gin.Engine {
@@ -37,42 +38,37 @@ func (h *RestHandler) InitHandlers() *gin.Engine {
 
 	router := gin.New()
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	apiV1 := router.Group("/api/V1", h.rl.RateLimiterMiddleware, h.am.Middleware)
+
+	apiV1 := router.Group("/api/V1", h.rateLimiter.RateLimiterMiddleware, h.authMiddleware.Middleware)
 	{
 		users := apiV1.Group("/users") // Работа с пользователями
 		{
 			users.GET("/", h.getUserData)                       // получаем информацию о себе
-			users.POST("/", h.registrationUser)                 // обновляем свои данные / регистрация
-			users.PUT("/", h.updateUserData)                    // обновляем свои данные / регистрация
+			users.POST("/", h.updateUserData)                   // обновляем свои данные / регистрация
 			users.DELETE("/", h.deleteUser)                     // удаляем аккаунт
 			users.GET("/:id", h.getUserData)                    // получаем информацию о пользователе по id
-			users.GET("/exists", h.auth)                        // получаем информацию о существовании юзера
 			users.POST("/description", h.addUserDescription)    //добавление / изменение описания пользователя
 			users.GET("/:id/description", h.getUserDescription) //получаем описание пользователя
 			users.GET("/description", h.getUserDescription)     //получаем описание пользователя
 
 			friends := users.Group("/friends") // работа с друзьями
 			{
-				friends.GET("/", do)         // список наших друзей
-				friends.GET("/:id", do)      // список друзей пользователя с id
-				friends.GET("/size", do)     // колличесво наших друзей
-				friends.GET("/:id/size", do) // колличесво друзей пользователя с id
-				friends.PUT("/:id", do)      // добавить друга по id
-				friends.DELETE("/:id", do)   // удалить из друзей по id
-
+				friends.GET("/", h.getFriends)                 // список наших друзей
+				friends.GET("/:id", h.getFriends)              // список друзей пользователя с id
+				friends.GET("/token", h.generateFriendToken)   // создать токен друзей
+				friends.PUT("/:id", h.addFriendsByParam)       // добавить друга по id
+				friends.PUT("/", h.addFriendsByToken)          // добавить пользователя по токену
+				friends.DELETE("/:id", h.deleteFriendsByParam) // удалить из друзей по id
 			}
 
-			points := users.Group("/points", do) // работа с координатами
-			{
-				points.PUT("/", do)        // отправляем наши координаты
-				points.GET("/", do)        // получаем координаты друзей в радиусе вокруг
-				points.GET("/connect", do) //создаем подключение через WebSocets, и шлем данные и получаем их
-			}
+		}
 
-			chat := users.Group("/chat", do) // работа с чатом
-			{
-				chat.POST("/send", do) // отправляем сообщение
-			}
+		events := apiV1.Group("/events") // события
+		{
+			events.GET("/", do)
+			events.GET("/search", do)
+			events.POST("/")
+			events.PUT("/:id")
 		}
 
 	}
@@ -92,13 +88,17 @@ func do(context *gin.Context) {
 }
 
 type DefaultResponse struct {
-	Message string `json:"message"`
+	Code    int         `json:"code"`
+	Message interface{} `json:"message"`
 }
 
 func NewErrorResponse(c *gin.Context, statusCode int, message string) {
-	logrus.Errorf("Message : { %s } ", message)
+	utils.Log(fmt.Sprintf("Message : { %s } ", message), nil)
 
-	c.AbortWithStatusJSON(statusCode, DefaultResponse{message})
+	c.AbortWithStatusJSON(http.StatusOK, DefaultResponse{
+		Code:    statusCode,
+		Message: message,
+	})
 }
 
 func GetUserToken(ctx *gin.Context) (string, error) {
@@ -117,4 +117,14 @@ func GetUserToken(ctx *gin.Context) (string, error) {
 	}
 
 	return headerParts[1], nil
+}
+
+func GetUserData(ctx *gin.Context) (model.User, error) {
+	data, exist := ctx.Get(UserData)
+	if !exist {
+		logrus.Error("Not found user data! user_handler.deleteUser")
+		NewErrorResponse(ctx, http.StatusInternalServerError, "not found user data")
+		return model.User{}, errors.New("failed get user data from request")
+	}
+	return data.(model.User), nil
 }

@@ -1,17 +1,17 @@
 package restHandler
 
 import (
-	"friendly/internal/cache"
+	cache "friendly/internal/cache/rate_limiter_cache"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type ReteLimiter struct {
 	MaxRequestPerMinutes int
-	RedisTraficService   *cache.RedisService
+	RedisTraficService   cache.RateLimiterCache
 }
 
-func NewRateLimiter(maxRequestPerMinutes int, redisTraficService *cache.RedisService) *ReteLimiter {
+func NewReteLimiter(maxRequestPerMinutes int, redisTraficService cache.RateLimiterCache) *ReteLimiter {
 	return &ReteLimiter{MaxRequestPerMinutes: maxRequestPerMinutes, RedisTraficService: redisTraficService}
 }
 

@@ -1,4 +1,4 @@
-package repository
+package user_repository
 
 import (
 	"cloud.google.com/go/firestore"
@@ -9,7 +9,7 @@ import (
 	"friendly/internal/utils"
 )
 
-const userCollection = "users"
+const UserCollection = "users"
 
 type FirebaseUserRepository struct {
 	fb *firebase.App
@@ -21,35 +21,27 @@ func NewFirebaseUserRepository(fb *firebase.App) *FirebaseUserRepository {
 
 func (f *FirebaseUserRepository) SaveUser(ctx context.Context, user model.User) (model.User, error) {
 	db, err := f.fb.Firestore(ctx)
+	defer db.Close()
 
 	if err != nil {
 		utils.Log("Failed to connect to Firestore", err)
 		return user, err
 	}
 
-	if user.Uid == "" {
-		_, err = db.Collection(userCollection).Doc(user.Uid).Set(ctx, user)
+	_, err = db.Collection(UserCollection).Doc(user.Uid).Set(ctx, user)
 
-		if err != nil {
-			utils.Log(fmt.Sprintf("Failed to update user. user: { %v }", user), err)
-			return user, err
-		}
-
-		return user, nil
-	} else {
-		doc, _, err := db.Collection(userCollection).Add(ctx, user)
-
-		if err != nil {
-			utils.Log(fmt.Sprintf("Failed to save userdata to Firestore. user: { %v }", user), err)
-			return user, err
-		}
-		user.Uid = doc.ID
-		return user, nil
+	if err != nil {
+		utils.Log(fmt.Sprintf("Failed to update user. user: { %v }", user), err)
+		return user, err
 	}
+
+	return user, nil
+
 }
 
 func (f *FirebaseUserRepository) GetUserByUid(ctx context.Context, uid string) (model.User, error) {
 	db, err := f.fb.Firestore(ctx)
+	defer db.Close()
 
 	if err != nil {
 		utils.Log("Failed to connect to Firestore", err)
@@ -57,7 +49,7 @@ func (f *FirebaseUserRepository) GetUserByUid(ctx context.Context, uid string) (
 	}
 
 	var retrievedUser = new(model.User)
-	data, err := db.Collection(userCollection).Doc(uid).Get(ctx)
+	data, err := db.Collection(UserCollection).Doc(uid).Get(ctx)
 
 	err = data.DataTo(&retrievedUser)
 
@@ -71,6 +63,7 @@ func (f *FirebaseUserRepository) GetUserByUid(ctx context.Context, uid string) (
 
 func (f *FirebaseUserRepository) GetUserByEmail(ctx context.Context, email string) (model.User, error) {
 	db, err := f.fb.Firestore(ctx)
+	defer db.Close()
 
 	if err != nil {
 		utils.Log("Failed to connect to Firestore", err)
@@ -78,7 +71,7 @@ func (f *FirebaseUserRepository) GetUserByEmail(ctx context.Context, email strin
 	}
 
 	var retrievedUser = new(model.User)
-	data, err := db.Collection(userCollection).Where("emil", "==", email).Documents(ctx).Next()
+	data, err := db.Collection(UserCollection).Where("emil", "==", email).Documents(ctx).Next()
 
 	if err != nil {
 		utils.Log(fmt.Sprintf("Failed to select user details by email: { %s }", email), err)
@@ -98,13 +91,14 @@ func (f *FirebaseUserRepository) GetUserByEmail(ctx context.Context, email strin
 
 func (f *FirebaseUserRepository) DeleteUser(ctx context.Context, uid string) error {
 	db, err := f.fb.Firestore(ctx)
+	defer db.Close()
 
 	if err != nil {
 		utils.Log("Failed connection to firestore", err)
 		return err
 	}
 
-	_, err = db.Collection(userCollection).Doc(uid).Update(ctx, []firestore.Update{
+	_, err = db.Collection(UserCollection).Doc(uid).Update(ctx, []firestore.Update{
 		{Path: "deleted", Value: true},
 	})
 	if err != nil {

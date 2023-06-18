@@ -7,7 +7,12 @@ import (
 	"friendly/internal/cache"
 	"friendly/internal/config"
 	restHandler "friendly/internal/handler/rest"
-	service2 "friendly/internal/service"
+	"friendly/internal/repository/user_description_repository"
+	"friendly/internal/repository/user_repository"
+	"friendly/internal/service"
+	"friendly/internal/service/auth_service"
+	"friendly/internal/service/user_description_service"
+	"friendly/internal/service/user_service"
 	"github.com/go-redis/redis"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/api/option"
@@ -25,26 +30,37 @@ func Start(configPath, pathToFirebaseSecret, pathsConfig string) {
 	}
 	logrus.SetLevel(level)
 
-	app, err := getFirebaseApp(pathToFirebaseSecret)
-	if err != nil {
-		logrus.Fatalf("Fatal error! error : {%s}", err.Error())
-	}
-	fbApp := service2.NewFirebaseApp(app)
-	client := redis.NewClient(&redis.Options{
-		Addr:     conf.Server.Cache.Host,
-		Password: conf.Server.Cache.Password,
-	})
 	ptConf, err := config.NewRestPathsConfig(pathsConfig)
 	if err != nil {
 		logrus.Fatalf("Fatal error! error : {%s}", err.Error())
 	}
+
+	app, err := getFirebaseApp(pathToFirebaseSecret)
+	if err != nil {
+		logrus.Fatalf("Fatal error! error : {%s}", err.Error())
+	}
+	client := redis.NewClient(&redis.Options{
+		Addr:     conf.Server.Cache.Host,
+		Password: conf.Server.Cache.Password,
+	})
 	redisService := cache.NewRedisService(client, conf.Server.Cache.Duration)
-	friendlyTS := service2.NewFriendlyTokenService(conf.Server.Jwt.SecretKey, redisService, fbApp, conf.Server.Jwt.ValidTime)
-	rl := restHandler.NewRateLimiter(10, redisService)
-	am := restHandler.NewAuthMiddleware(ptConf, conf.Server.Jwt.RecreateTime, friendlyTS, fbApp)
-	vkService := service2.NewVkService("https://api.vk.com/method/users.get", "5.131")
-	handler := restHandler.NewRestHandler(fbApp, rl, vkService, am, redisService)
+
+	userRepo := user_repository.NewFirebaseUserRepository(app)
+	userDescriptionRepo := user_description_repository.NewFirebaseDescriptionRepository(app)
+	//friendlyRepo := user_friends_repository.NewFirebaseFriendsRepository(app)
+
+	userService := user_service.NewDefaultUserService(userRepo, redisService)
+	userDescriptionService := user_description_service.NewDefaultUserDescriptionService(userDescriptionRepo, redisService)
+	authService := auth_service.NewFirebaseAuthService(app)
+	friendlyTokenService := service.NewDefaultFriendlyTokenService(conf.Server.Jwt.SecretKey, conf.Server.Jwt.ValidTime)
+
+	rateLimiter := restHandler.NewRateLimiter(10, redisService)
+	authMiddleware := restHandler.NewAuthMiddleware(*ptConf, conf.Server.Jwt.RecreateTime, friendlyTokenService, userService, []auth_service.AuthService{authService})
+	//vkService := service2.NewVkService("https://api.vk.com/method/users.get", "5.131")
+
+	handler := restHandler.NewRestHandler(userService, userDescriptionService, rateLimiter, authMiddleware)
 	handles := handler.InitHandlers()
+
 	server := apiserver.NewApiServer(conf, handles)
 	err = server.Run()
 	if err != nil {

@@ -67,7 +67,7 @@ func (s *VkService) GetClaims(vkAccessToken string) (map[string]interface{}, err
 
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		utils.LogError("", err)
+		utils.Log("", err)
 		return nil, err
 	}
 

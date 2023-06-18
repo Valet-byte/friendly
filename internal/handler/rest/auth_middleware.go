@@ -1,29 +1,39 @@
 package restHandler
 
 import (
+	"fmt"
 	"friendly/internal/config"
 	"friendly/internal/model"
-	service2 "friendly/internal/service"
+	"friendly/internal/service/auth_service"
+	"friendly/internal/service/friendly_token_service"
+	service "friendly/internal/service/user_service"
+	"friendly/internal/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"time"
 )
 
-const (
-	friendlyToken = "friendly_token"
-	firebaseToken = "firebase_token"
-)
-
 type AuthMiddleware struct {
-	pathConfig        *config.RestPathsConfig
+	pathConfig        config.RestPathsConfig
 	recreateTokenTime time.Duration
-	frTokenService    *service2.FriendlyTokenService
-	fbApp             *service2.FirebaseAppService
+	tokenService      friendly_token_service.FriendlyTokenService
+	userService       service.UserService
+	authServices      []auth_service.AuthService
 }
 
-func NewAuthMiddleware(pathConfig *config.RestPathsConfig, recreateTokenTime time.Duration, frTokenService *service2.FriendlyTokenService, fbApp *service2.FirebaseAppService) *AuthMiddleware {
-	return &AuthMiddleware{pathConfig: pathConfig, recreateTokenTime: recreateTokenTime, frTokenService: frTokenService, fbApp: fbApp}
+func NewAuthMiddleware(pathConfig config.RestPathsConfig,
+	recreateTokenTime time.Duration,
+	tokenService friendly_token_service.FriendlyTokenService,
+	userService service.UserService,
+	authServices []auth_service.AuthService) *AuthMiddleware {
+	return &AuthMiddleware{
+		pathConfig:        pathConfig,
+		recreateTokenTime: recreateTokenTime,
+		tokenService:      tokenService,
+		userService:       userService,
+		authServices:      authServices,
+	}
 }
 
 func (s *AuthMiddleware) Middleware(ctx *gin.Context) {
@@ -31,7 +41,7 @@ func (s *AuthMiddleware) Middleware(ctx *gin.Context) {
 	method := ctx.Request.Method
 
 	conf, err := s.pathConfig.FindConfig(path, method)
-	var userData *model.User
+	var userData model.User
 
 	if err != nil {
 		NewErrorResponse(ctx, http.StatusBadRequest, "Incorrect path or method!")
@@ -47,29 +57,36 @@ func (s *AuthMiddleware) Middleware(ctx *gin.Context) {
 			return
 		}
 
-		if conf.AuthMethod == friendlyToken {
-			uid, exp, err := s.frTokenService.ValidateToken(token)
+		uid, exp, err := s.tokenService.ParseToken(token)
+
+		if err != nil {
+			for _, authService := range s.authServices {
+				uid, err = authService.GetUserUid(ctx, token)
+				if err != nil {
+					utils.Log(fmt.Sprintf("Invalid token for { %v }", authService), err)
+					continue
+				}
+			}
 
 			if err != nil {
-				logrus.Error("Invalid token, err: ", err)
+				utils.Log("Invalid token, err: ", err)
 				NewErrorResponse(ctx, http.StatusBadRequest, "Invalid token!")
 				ctx.Abort()
 				return
 			}
 
-			userData, err = s.frTokenService.GetUserData(uid, ctx)
-
+			friendlyToken, err := s.tokenService.CreateToken(uid)
 			if err != nil {
-				NewErrorResponse(ctx, http.StatusInternalServerError, err.Error())
-				logrus.Error("AuthMiddleware. Not found user with uid:", uid, "err :", err)
+				NewErrorResponse(ctx, http.StatusInternalServerError, "Failed recreate user!")
+				logrus.Error("AuthMiddleware. Failed create token with uid:", uid, "err :", err)
 				ctx.Abort()
 				return
 			}
 
-			ctx.Set(UserData, userData)
-
+			ctx.Header(TokenHeader, friendlyToken)
+		} else {
 			if (exp - time.Now().Unix()) < int64(s.recreateTokenTime.Seconds()) {
-				newToken, err := s.frTokenService.CreateToken(uid)
+				newToken, err := s.tokenService.CreateToken(uid)
 				if err != nil {
 					NewErrorResponse(ctx, http.StatusInternalServerError, "Failed recreate user!")
 					logrus.Error("AuthMiddleware. Failed create token with uid:", uid, "err :", err)
@@ -79,44 +96,19 @@ func (s *AuthMiddleware) Middleware(ctx *gin.Context) {
 
 				ctx.Header(TokenHeader, newToken)
 			}
-
-			ctx.Next()
-			return
 		}
 
-		if conf.AuthMethod == firebaseToken {
-			uid, err := s.fbApp.GetUserUid(ctx, token)
+		userData, err = s.userService.GetUserByUid(ctx, uid)
 
-			if err != nil {
-				NewErrorResponse(ctx, http.StatusBadRequest, "Invalid token!")
-				ctx.Abort()
-				return
-			}
-
-			userData, err = s.frTokenService.GetUserData(uid, ctx)
-
-			if err != nil {
-				NewErrorResponse(ctx, http.StatusInternalServerError, err.Error())
-				logrus.Error("AuthMiddleware. Not found user with uid:", uid, "err :", err)
-				ctx.Abort()
-				return
-			}
-
-			ctx.Set(UserData, userData)
-
-			newToken, err := s.frTokenService.CreateToken(uid)
-			if err != nil {
-				NewErrorResponse(ctx, http.StatusInternalServerError, "Failed recreate user!")
-				logrus.Error("AuthMiddleware. Failed create token with uid:", uid, "err :", err)
-				ctx.Abort()
-				return
-			}
-
-			ctx.Header(TokenHeader, newToken)
-
-			ctx.Next()
-			return
+		if err != nil {
+			ctx.Set(UserUid, uid)
 		}
+
+		ctx.Set(UserData, userData)
+
+		ctx.Next()
+		return
+
 	}
 	ctx.Next()
 	return
